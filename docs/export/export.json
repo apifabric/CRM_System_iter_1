@@ -1,0 +1,114 @@
+{
+    "rules": [
+        {
+            "name": "Customer Total Orders",
+            "description": "Derives the total number of orders for each customer.",
+            "use_case": "Calculate the total number of orders placed by the customer.",
+            "code": "Rule.count(derive=Customer.total_orders, as_count_of=Order, where=lambda row: row.customer_id == Customer.id)",
+            "error": null,
+            "status": "accepted",
+            "entity": null,
+            "id": "01JGEC8PQTTJDRXZD4WCJK5BMC"
+        },
+        {
+            "name": "Unpaid Orders Count",
+            "description": "Count the number of unpaid orders associated with each customer.",
+            "use_case": "Determine the number of unpaid orders a customer has.",
+            "code": "Rule.count(derive=Customer.unpaid_order_count, as_count_of=Order, where=lambda row: row.order_status == 'unpaid')",
+            "error": null,
+            "status": "accepted",
+            "entity": null,
+            "id": "01JGEC8PT2S6MQNHR5BQ3YZ9MH"
+        },
+        {
+            "name": "Total Order Items",
+            "description": "Sum of all items associated with an order.",
+            "use_case": "Calculate the total number of items present in each order.",
+            "code": "Rule.sum(derive=Order.total_order_items, as_sum_of=OrderItem.quantity, where=lambda row: row.order_id == Order.id)",
+            "error": null,
+            "status": "accepted",
+            "entity": null,
+            "id": "01JGEC8PVVVS3GF1BC8ZJMGJ3T"
+        },
+        {
+            "name": "Copy Product Price",
+            "description": "Store each OrderItem's unit price as a copy from the associated Product's unit price.",
+            "use_case": "Keep track of the product price at the time of order.",
+            "code": "Rule.copy(derive=OrderItem.unit_price, from_parent=Product.price)",
+            "error": null,
+            "status": "active",
+            "entity": null,
+            "id": "01JGEC8PY0DC63M9WP3CHRK4VG"
+        },
+        {
+            "name": "Issued Orders Count",
+            "description": "Count of issued orders for each employee managing the orders.",
+            "use_case": "Determine how many orders a specific employee is managing.",
+            "code": "Rule.count(derive=Employee.issued_orders_count, as_count_of=EmployeeOrder, where=lambda row: row.employee_id == Employee.id)",
+            "error": null,
+            "status": "accepted",
+            "entity": null,
+            "id": "01JGEC8PZK1RCFM7JYXC299KS5"
+        },
+        {
+            "name": "Supplier Product Count",
+            "description": "Count of products associated with each supplier.",
+            "use_case": "Calculate how many products each supplier provides.",
+            "code": "Rule.count(derive=Supplier.product_count, as_count_of=ProductSupplier, where=lambda row: row.supplier_id == Supplier.id)",
+            "error": null,
+            "status": "accepted",
+            "entity": null,
+            "id": "01JGEC8Q1BXY9VMDS7AERC5G5G"
+        }
+    ],
+    "models": [
+        {
+            "classname": "Address",
+            "code": "class Address(Base):  # type: ignore\n    \"\"\"\n    description: Model representing a physical address in the CRM system.\n    \"\"\"\n    __tablename__ = 'address'\n    _s_collection_name = 'Address'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    street = Column(String)\n    city = Column(String)\n    state = Column(String)\n    zip_code = Column(String)\n\n    # parent relationships (access parent)\n\n    # child relationships (access children)\n    CustomerList : Mapped[List[\"Customer\"]] = relationship(back_populates=\"address\")"
+        },
+        {
+            "classname": "CustomerType",
+            "code": "class CustomerType(Base):  # type: ignore\n    \"\"\"\n    description: Model representing a customer type or category.\n    \"\"\"\n    __tablename__ = 'customer_type'\n    _s_collection_name = 'CustomerType'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    description = Column(String)\n\n    # parent relationships (access parent)\n\n    # child relationships (access children)\n    CustomerCustomerTypeList : Mapped[List[\"CustomerCustomerType\"]] = relationship(back_populates=\"customer_type\")"
+        },
+        {
+            "classname": "Employee",
+            "code": "class Employee(Base):  # type: ignore\n    \"\"\"\n    description: Model representing an employee in the CRM system who takes or manages orders.\n    \"\"\"\n    __tablename__ = 'employee'\n    _s_collection_name = 'Employee'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    first_name = Column(String)\n    last_name = Column(String)\n    email = Column(String)\n    phone = Column(String)\n    issued_orders_count = Column(Integer)\n\n    # parent relationships (access parent)\n\n    # child relationships (access children)\n    EmployeeOrderList : Mapped[List[\"EmployeeOrder\"]] = relationship(back_populates=\"employee\")"
+        },
+        {
+            "classname": "Product",
+            "code": "class Product(Base):  # type: ignore\n    \"\"\"\n    description: Model representing a product sold by the CRM system.\n    \"\"\"\n    __tablename__ = 'product'\n    _s_collection_name = 'Product'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    name = Column(String)\n    description = Column(String)\n    price = Column(Float)\n\n    # parent relationships (access parent)\n\n    # child relationships (access children)\n    ProductSupplierList : Mapped[List[\"ProductSupplier\"]] = relationship(back_populates=\"product\")\n    ReviewList : Mapped[List[\"Review\"]] = relationship(back_populates=\"product\")\n    OrderItemList : Mapped[List[\"OrderItem\"]] = relationship(back_populates=\"product\")"
+        },
+        {
+            "classname": "Supplier",
+            "code": "class Supplier(Base):  # type: ignore\n    \"\"\"\n    description: Model representing a supplier of products.\n    \"\"\"\n    __tablename__ = 'supplier'\n    _s_collection_name = 'Supplier'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    name = Column(String)\n    email = Column(String)\n    phone = Column(String)\n\n    # parent relationships (access parent)\n\n    # child relationships (access children)\n    ProductSupplierList : Mapped[List[\"ProductSupplier\"]] = relationship(back_populates=\"supplier\")"
+        },
+        {
+            "classname": "Customer",
+            "code": "class Customer(Base):  # type: ignore\n    \"\"\"\n    description: Model representing a customer in the CRM system.\n    \"\"\"\n    __tablename__ = 'customer'\n    _s_collection_name = 'Customer'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    name = Column(String)\n    email = Column(String)\n    phone = Column(String)\n    address_id = Column(ForeignKey('address.id'))\n    total_orders = Column(Integer)\n    unpaid_order_count = Column(Integer)\n\n    # parent relationships (access parent)\n    address : Mapped[\"Address\"] = relationship(back_populates=(\"CustomerList\"))\n\n    # child relationships (access children)\n    CustomerCustomerTypeList : Mapped[List[\"CustomerCustomerType\"]] = relationship(back_populates=\"customer\")\n    OrderList : Mapped[List[\"Order\"]] = relationship(back_populates=\"customer\")\n    ReviewList : Mapped[List[\"Review\"]] = relationship(back_populates=\"customer\")"
+        },
+        {
+            "classname": "ProductSupplier",
+            "code": "class ProductSupplier(Base):  # type: ignore\n    \"\"\"\n    description: Link table mapping products to their suppliers.\n    \"\"\"\n    __tablename__ = 'product_supplier'\n    _s_collection_name = 'ProductSupplier'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    product_id = Column(ForeignKey('product.id'))\n    supplier_id = Column(ForeignKey('supplier.id'))\n\n    # parent relationships (access parent)\n    product : Mapped[\"Product\"] = relationship(back_populates=(\"ProductSupplierList\"))\n    supplier : Mapped[\"Supplier\"] = relationship(back_populates=(\"ProductSupplierList\"))"
+        },
+        {
+            "classname": "CustomerCustomerType",
+            "code": "class CustomerCustomerType(Base):  # type: ignore\n    \"\"\"\n    description: Junction table for many-to-many relationship between customers and customer types.\n    \"\"\"\n    __tablename__ = 'customer_customer_type'\n    _s_collection_name = 'CustomerCustomerType'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    customer_id = Column(ForeignKey('customer.id'))\n    customer_type_id = Column(ForeignKey('customer_type.id'))\n\n    # parent relationships (access parent)\n    customer : Mapped[\"Customer\"] = relationship(back_populates=(\"CustomerCustomerTypeList\"))\n    customer_type : Mapped[\"CustomerType\"] = relationship(back_populates=(\"CustomerCustomerTypeList\"))"
+        },
+        {
+            "classname": "Order",
+            "code": "class Order(Base):  # type: ignore\n    \"\"\"\n    description: Model representing an order made by a customer.\n    \"\"\"\n    __tablename__ = 'order'\n    _s_collection_name = 'Order'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    order_date = Column(DateTime)\n    shipped_date = Column(DateTime)\n    customer_id = Column(ForeignKey('customer.id'))\n    total_order_items = Column(Integer)\n\n    # parent relationships (access parent)\n    customer : Mapped[\"Customer\"] = relationship(back_populates=(\"OrderList\"))\n\n    # child relationships (access children)\n    EmployeeOrderList : Mapped[List[\"EmployeeOrder\"]] = relationship(back_populates=\"order\")\n    OrderItemList : Mapped[List[\"OrderItem\"]] = relationship(back_populates=\"order\")"
+        },
+        {
+            "classname": "Review",
+            "code": "class Review(Base):  # type: ignore\n    \"\"\"\n    description: Model representing a review made by a customer for a product.\n    \"\"\"\n    __tablename__ = 'review'\n    _s_collection_name = 'Review'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    customer_id = Column(ForeignKey('customer.id'))\n    product_id = Column(ForeignKey('product.id'))\n    review_text = Column(String)\n    rating = Column(Integer)\n\n    # parent relationships (access parent)\n    customer : Mapped[\"Customer\"] = relationship(back_populates=(\"ReviewList\"))\n    product : Mapped[\"Product\"] = relationship(back_populates=(\"ReviewList\"))"
+        },
+        {
+            "classname": "EmployeeOrder",
+            "code": "class EmployeeOrder(Base):  # type: ignore\n    \"\"\"\n    description: Junction table for many-to-many relationship between employees and orders.\n    \"\"\"\n    __tablename__ = 'employee_order'\n    _s_collection_name = 'EmployeeOrder'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    employee_id = Column(ForeignKey('employee.id'))\n    order_id = Column(ForeignKey('order.id'))\n\n    # parent relationships (access parent)\n    employee : Mapped[\"Employee\"] = relationship(back_populates=(\"EmployeeOrderList\"))\n    order : Mapped[\"Order\"] = relationship(back_populates=(\"EmployeeOrderList\"))"
+        },
+        {
+            "classname": "OrderItem",
+            "code": "class OrderItem(Base):  # type: ignore\n    \"\"\"\n    description: Model representing an item in an order, linking orders to products.\n    \"\"\"\n    __tablename__ = 'order_item'\n    _s_collection_name = 'OrderItem'  # type: ignore\n\n    id = Column(Integer, primary_key=True)\n    order_id = Column(ForeignKey('order.id'))\n    product_id = Column(ForeignKey('product.id'))\n    quantity = Column(Integer)\n    unit_price = Column(Float)\n\n    # parent relationships (access parent)\n    order : Mapped[\"Order\"] = relationship(back_populates=(\"OrderItemList\"))\n    product : Mapped[\"Product\"] = relationship(back_populates=(\"OrderItemList\"))"
+        }
+    ]
+}

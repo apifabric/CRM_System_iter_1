@@ -1,0 +1,38 @@
+[
+    {
+        "code": "Rule.count(derive=Customer.total_orders, as_count_of=Order, where=lambda row: row.customer_id == Customer.id)",
+        "description": "Derives the total number of orders for each customer.",
+        "name": "Customer Total Orders",
+        "use_case": "Calculate the total number of orders placed by the customer."
+    },
+    {
+        "code": "Rule.count(derive=Customer.unpaid_order_count, as_count_of=Order, where=lambda row: row.order_status == 'unpaid')",
+        "description": "Count the number of unpaid orders associated with each customer.",
+        "name": "Unpaid Orders Count",
+        "use_case": "Determine the number of unpaid orders a customer has."
+    },
+    {
+        "code": "Rule.sum(derive=Order.total_order_items, as_sum_of=OrderItem.quantity, where=lambda row: row.order_id == Order.id)",
+        "description": "Sum of all items associated with an order.",
+        "name": "Total Order Items",
+        "use_case": "Calculate the total number of items present in each order."
+    },
+    {
+        "code": "Rule.copy(derive=OrderItem.unit_price, from_parent=Product.price)",
+        "description": "Store each OrderItem's unit price as a copy from the associated Product's unit price.",
+        "name": "Copy Product Price",
+        "use_case": "Keep track of the product price at the time of order."
+    },
+    {
+        "code": "Rule.count(derive=Employee.issued_orders_count, as_count_of=EmployeeOrder, where=lambda row: row.employee_id == Employee.id)",
+        "description": "Count of issued orders for each employee managing the orders.",
+        "name": "Issued Orders Count",
+        "use_case": "Determine how many orders a specific employee is managing."
+    },
+    {
+        "code": "Rule.count(derive=Supplier.product_count, as_count_of=ProductSupplier, where=lambda row: row.supplier_id == Supplier.id)",
+        "description": "Count of products associated with each supplier.",
+        "name": "Supplier Product Count",
+        "use_case": "Calculate how many products each supplier provides."
+    }
+]

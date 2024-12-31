@@ -1,0 +1,8 @@
+Update the prior response - be sure not to lose classes and test data already created.
+
+Derives the total number of orders for each customer.
+Count the number of unpaid orders associated with each customer.
+Sum of all items associated with an order.
+Store each OrderItem's unit price as a copy from the associated Product's unit price.
+Count of issued orders for each employee managing the orders.
+Count of products associated with each supplier.
